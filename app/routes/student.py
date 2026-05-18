@@ -1,97 +1,81 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.student import StudentCreate , StudentResponse , StudentUpdate
-from app.models.student import Student
 from app.db.dependencies import get_db
-import bcrypt
+from app.crud.student import create_student, get_students, get_student_by_id, update_student, student_delete
 
 router = APIRouter()
 
 @router.post("/", response_model=StudentResponse)
-def create_student(
+def create_student_route(
     student: StudentCreate,
     db: Session = Depends(get_db)
 ):
-    hashed_password = bcrypt.hashpw(
-        student.password.encode("utf-8"),
-        bcrypt.gensalt()
-    ).decode("utf-8")
+    return create_student(db, student)
     
-    new_student = Student(
-        name=student.name,
-        email=student.email,
-        hashed_password=hashed_password
-    )
-    
-    db.add(new_student)
-    db.commit()
-    db.refresh(new_student)
-    
-    return new_student
-
     
 @router.get("/", response_model=list[StudentResponse])
-def get_students(
+def get_students_route(
     db: Session = Depends(get_db)
 ):
-    students = db.query(Student).all()
-    
-    return students
+    return get_students(db)
 
 
 @router.get("/{student_id}", response_model=StudentResponse)
-def get_student_by_id(
+def get_student_by_id_route(
     student_id: int,
     db: Session = Depends(get_db)
 ):
-    student = db.query(Student).filter(Student.id == student_id).first()
-  
+    student = get_student_by_id(
+        db,
+        student_id
+    )
+
     if not student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"
         )
-    
+
     return student
     
     
 @router.put("/{student_id}", response_model=StudentResponse)
-def update_student(
+def update_student_route(
     student_id: int,
-    update_student: StudentUpdate,
+    updated_student: StudentUpdate,
     db: Session = Depends(get_db)
 ):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    
+    student = update_student(
+        db,
+        student_id,
+        updated_student
+    )
+
     if not student:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"
         )
-    
-    student.name = update_student.name
-    student.email = update_student.email
-    
-    db.commit()
-    db.refresh(student)
 
     return student
 
 @router.delete("/{student_id}")
-def student_delete(
+def delete_student_route(
     student_id: int,
     db: Session = Depends(get_db)
 ):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    
+    student = student_delete(
+        db,
+        student_id
+    )
+
     if not student:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Student not found"
         )
-    
-    db.delete(student)
-    db.commit()
+
     return {
         "message": "Student deleted successfully"
     }
