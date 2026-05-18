@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.schemas.teacher import TeacherCreate, TeacherResponse, TeacherUpdate
 from app.db.dependencies import get_db
-from app.crud.teacher import create_teacher, get_teacher, get_teacher_by_id, delete_teacher
+from app.crud.teacher import create_teacher, get_teacher, get_teacher_by_id, delete_teacher, update_teacher
 
 router = APIRouter()
 
@@ -41,7 +41,7 @@ def update_teacher_route(
     updated_teacher: TeacherUpdate,
     db: Session = Depends(get_db)
 ):
-    teacher = TeacherUpdate(
+    teacher = update_teacher(
         db,
         teacher_id,
         updated_teacher

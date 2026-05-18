@@ -9,7 +9,8 @@ def create_teacher(
     teacher: TeacherCreate
 ):
     hashed_password = bcrypt.hashpw(
-        teacher.password.encode("utf-8")
+        teacher.password.encode("utf-8"),
+        bcrypt.gensalt()
     ).decode("utf-8")
     
     new_teacher = Teacher(
