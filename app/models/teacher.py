@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ForeignKey
 from app.db.database import Base
+from sqlalchemy.orm import relationship
 
 class Teacher(Base):
     __tablename__ = "teachers"
@@ -13,3 +14,7 @@ class Teacher(Base):
     hashed_password = Column(String, nullable=False)
 
     role = Column(String , default="teacher")
+    
+    department_id = Column(Integer, ForeignKey("departments.id"))
+    
+    department = relationship("Department", back_populates="teachers")
