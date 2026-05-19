@@ -17,7 +17,8 @@ def create_student(
     new_student = Student(
         name=student.name,
         email=student.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        department_id=student.department_id
     )
     
     db.add(new_student)
