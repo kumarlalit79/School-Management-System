@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.schemas.department import DepartmentCreate, DepartmentUpdate, DepartmentResponse
-
 from app.crud.department import create_department, get_departments, get_department_by_id, update_department, delete_department
+from app.core.security import require_role
 
 router = APIRouter()
 
@@ -21,6 +21,14 @@ def get_departments_route(
 ):
     return get_departments(db)
 
+@router.get("/admin-only")
+def admin_only_route(
+    current_user = Depends(require_role(["admin"]))
+):
+    return {
+        "message" : "Welcome Admin",
+        "user" : current_user
+    }
 
 @router.get("/{department_id}", response_model=DepartmentResponse)
 def get_department_by_id_route(
@@ -80,4 +88,16 @@ def delete_department_route(
 
     return {
         "message": "Department deleted successfully"
+    }
+
+
+@router.get("/staff-only")
+def staff_only_route(
+    current_user = Depends(
+        require_role(["admin", "teacher"])
+    )
+):
+    return {
+        "message" : "Staff access granted",
+        "user" : current_user
     }

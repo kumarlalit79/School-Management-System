@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas.student import StudentCreate , StudentResponse , StudentUpdate
 from app.db.dependencies import get_db
 from app.crud.student import create_student, get_students, get_student_by_id, update_student, student_delete
+from app.core.security import get_current_user
 
 router = APIRouter()
 
@@ -12,6 +13,17 @@ def create_student_route(
     db: Session = Depends(get_db)
 ):
     return create_student(db, student)
+    
+    
+
+@router.get("/me")
+def get_logged_in_student(
+    current_user = Depends(get_current_user)
+):
+    return {
+        "message" : "Protected route accessed",
+        "user" : current_user
+    }
     
     
 @router.get("/", response_model=list[StudentResponse])
@@ -79,3 +91,5 @@ def delete_student_route(
     return {
         "message": "Student deleted successfully"
     }
+    
+
