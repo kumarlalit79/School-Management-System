@@ -4,6 +4,7 @@ from app.models import Student
 from app.routes.student import router as student_router
 from app.routes.teacher import router as teacher_router
 from app.routes.department import router as department_router
+from app.routes.auth import router as auth_router
 
 app = FastAPI()
 
@@ -22,11 +23,15 @@ app.include_router(
 )
 
 app.include_router(
-    # This must be department_router. Using teacher_router here made Swagger show
-    # Teacher request/response schemas under the /departments endpoints.
     department_router,
     prefix="/departments",
     tags=["Departments"]   
+)
+
+app.include_router(
+    auth_router,
+    prefix="/auth",
+    tags=["Authentication"]
 )
 
 @app.get("/")
